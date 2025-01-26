@@ -77,6 +77,31 @@ vim.opt.scrolloff = 10
 --  See `:help hlsearch`
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
+-- Save the current buffer
+-- See `:help :write`
+vim.keymap.set('n', '<C-s>', '<cmd>w<CR>', { desc = 'Save the current buffer' })
+
+-- x to delete without setting to default register
+vim.keymap.set('n', 'x', '"_x', { desc = 'Delete without setting to default register' })
+
+-- Wrap current line
+vim.keymap.set('n', '<leader>lw', '<cmd>set wrap!<CR>', { desc = 'Wrap current line' })
+
+-- Find and center
+vim.keymap.set('n', 'n', 'nzzzv', { desc = 'Next and center' })
+vim.keymap.set('n', 'N', 'Nzzzv', { desc = 'Previous and center' })
+
+-- Vertical scroll and center
+vim.keymap.set('n', '<C-d>', '<C-d>zz', { desc = 'Vertical scroll down and center' })
+vim.keymap.set('n', '<C-u>', '<C-u>zz', { desc = 'Vertical scroll up and center' })
+
+-- Stay in visual mode after indenting
+vim.keymap.set('v', '<', '<gv', { desc = 'Stay in visual mode after indenting' })
+vim.keymap.set('v', '>', '>gv', { desc = 'Stay in visual mode after indenting' })
+
+-- Keep last yanged when pasting over visual selection
+vim.keymap.set('v', 'p', '"_dP', { desc = 'Keep last yanked when pasting over visual selection' })
+
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
@@ -118,6 +143,10 @@ vim.keymap.set('n', '<leader>mp', function()
   require('harpoon'):list():prev()
 end, { desc = 'Select [P]revious Harpoon marker' })
 
+vim.keymap.set('n', '<leader>mn', function()
+  require('harpoon'):list():next()
+end, { desc = 'Select [N]ext Harpoon marker' })
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -131,27 +160,6 @@ vim.api.nvim_create_autocmd('TextYankPost', {
     vim.highlight.on_yank()
   end,
 })
-
--- Setup Terminal
-vim.api.nvim_create_autocmd('TermOpen', {
-  group = vim.api.nvim_create_augroup('custom-term-open', { clear = true }),
-  callback = function()
-    vim.opt.number = false
-    vim.opt.relativenumber = false
-  end,
-})
-
-vim.keymap.set('t', '<Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
-vim.keymap.set('t', '<C-h>', '<C-\\><C-N><C-w>h', { desc = 'Move to the left window' })
-vim.keymap.set('t', '<C-j>', '<C-\\><C-N><C-w>j', { desc = 'Move to the bottom window' })
-vim.keymap.set('t', '<C-k>', '<C-\\><C-N><C-w>k', { desc = 'Move to the top window' })
-vim.keymap.set('t', '<C-l>', '<C-\\><C-N><C-w>l', { desc = 'Move to the right window' })
-vim.keymap.set('n', '<leader>st', function()
-  vim.cmd.vnew()
-  vim.cmd.term()
-  vim.cmd.wincmd 'J'
-  vim.api.nvim_win_set_height(0, 15)
-end)
 
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
@@ -340,7 +348,14 @@ require('lazy').setup({
         -- },
         pickers = {
           find_files = {
-            find_command = { 'rg', '--files', '--hidden', '-g', '!.git' },
+            file_ignore_patterns = { 'node_modules/', '.git/' },
+            hidden = true,
+          },
+          live_grep = {
+            file_ignore_patterns = { 'node_modules/', '.git/' },
+            additional_args = function(_)
+              return { '--hidden' }
+            end,
           },
         },
         extensions = {
@@ -358,14 +373,14 @@ require('lazy').setup({
       local builtin = require 'telescope.builtin'
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
-      vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
+      vim.keymap.set('n', '<leader><leader>', builtin.find_files, { desc = '[S]earch [F]iles' })
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
       vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
-      vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+      vim.keymap.set('n', '<leader>sb', builtin.buffers, { desc = '[ ] Find existing buffers' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
@@ -582,7 +597,12 @@ require('lazy').setup({
         -- But for many setups, the LSP (`ts_ls`) will work just fine
         -- ts_ls = {},
         --
-
+        html = { filetypes = { 'html' } },
+        cssls = {},
+        jsonls = {},
+        tailwindcss = {},
+        dockerls = {},
+        yamlls = {},
         lua_ls = {
           -- cmd = { ... },
           -- filetypes = { ... },
@@ -664,13 +684,13 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         -- You can use 'stop_after_first' to run the first available formatter from the list
-        javascript = { 'prettierd', 'prettier', stop_after_first = true },
-        typescript = { 'prettierd', 'prettier', stop_after_first = true },
-        typescriptreact = { 'prettierd', 'prettier', stop_after_first = true },
-        javascriptreact = { 'prettierd', 'prettier', stop_after_first = true },
-        json = { 'prettierd', 'prettier', stop_after_first = true },
-        html = { 'prettierd', 'prettier', stop_after_first = true },
-        css = { 'prettierd', 'prettier', stop_after_first = true },
+        javascript = { 'prettierd' },
+        typescript = { 'prettierd' },
+        typescriptreact = { 'prettierd' },
+        javascriptreact = { 'prettierd' },
+        json = { 'prettierd' },
+        html = { 'prettierd' },
+        css = { 'prettierd' },
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
         python = { 'isort', 'black' },
@@ -698,12 +718,12 @@ require('lazy').setup({
           -- `friendly-snippets` contains a variety of premade snippets.
           --    See the README about individual language/framework/plugin snippets:
           --    https://github.com/rafamadriz/friendly-snippets
-          -- {
-          --   'rafamadriz/friendly-snippets',
-          --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load()
-          --   end,
-          -- },
+          {
+            'rafamadriz/friendly-snippets',
+            config = function()
+              require('luasnip.loaders.from_vscode').lazy_load()
+            end,
+          },
         },
       },
       'saadparwaiz1/cmp_luasnip',
@@ -872,7 +892,29 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = {
+        'javascript',
+        'typescript',
+        'json',
+        'html',
+        'css',
+        'tsx',
+        'regex',
+        'sql',
+        'toml',
+        'gitignore',
+        'yaml',
+        'markdown',
+        'markdown_inline',
+        'bash',
+        'c',
+        'diff',
+        'lua',
+        'luadoc',
+        'query',
+        'vim',
+        'vimdoc',
+      },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
