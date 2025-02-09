@@ -77,13 +77,6 @@ vim.opt.scrolloff = 10
 --  See `:help hlsearch`
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
--- Save the current buffer
--- See `:help :write`
-vim.keymap.set('n', '<C-s>', '<cmd>w<CR>', { desc = 'Save the current buffer' })
-
--- x to delete without setting to default register
-vim.keymap.set('n', 'x', '"_x', { desc = 'Delete without setting to default register' })
-
 -- Wrap current line
 vim.keymap.set('n', '<leader>lw', '<cmd>set wrap!<CR>', { desc = 'Wrap current line' })
 
@@ -121,6 +114,11 @@ vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left wind
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+
+-- Cutlass mappings
+vim.keymap.set({ 'n', 'x' }, 'm', 'd', { noremap = true, desc = 'Cut' })
+vim.keymap.set('n', 'M', 'D', { noremap = true, desc = 'Cut to end of line' })
+vim.keymap.set('n', 'mm', 'dd', { noremap = true, desc = 'Cut line' })
 
 -- Neotree
 vim.keymap.set('n', '<C-b>', '<Cmd>Neotree toggle<CR>')
@@ -275,6 +273,8 @@ require('lazy').setup({
       spec = {
         { '<leader>c', group = '[C]ode', mode = { 'n', 'x' } },
         { '<leader>d', group = '[D]ocument' },
+        { '<leader>m', group = 'Harpoon [M]arkers' },
+        { '<leader>l', group = '[L]ine' },
         { '<leader>r', group = '[R]ename' },
         { '<leader>s', group = '[S]earch' },
         { '<leader>w', group = '[W]orkspace' },
