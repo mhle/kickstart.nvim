@@ -12,6 +12,9 @@ vim.g.have_nerd_font = true
 -- NOTE: You can change these options as you wish!
 --  For more options, you can see `:help option-list`
 
+-- Colorcolumn
+vim.opt.colorcolumn = '80'
+
 -- Make line numbers default
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
@@ -595,8 +598,17 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
+        -- ts_ls = {
+        --   root_dir = require('lspconfig').util.root_pattern { 'package.json', 'tsconfig.json' },
+        --   single_file_support = false,
+        --   settings = {},
+        -- },
         --
+        denols = {
+          root_dir = require('lspconfig').util.root_pattern { 'deno.json', 'deno.jsonc' },
+          single_file_support = false,
+          settings = {},
+        },
         html = { filetypes = { 'html' } },
         cssls = {},
         jsonls = {},
@@ -851,21 +863,22 @@ require('lazy').setup({
       -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
       -- - sd'   - [S]urround [D]elete [']quotes
       -- - sr)'  - [S]urround [R]eplace [)] [']
-      require('mini.surround').setup {
-        n_lines = 100,
-        custom_surroundings = {
-          T = {
-            input = { '<(%w+)[^<>]->.-</%1>', '^<()%w+().*</()%w+()>$' },
-            output = function()
-              local tag_name = MiniSurround.user_input 'Tag name'
-              if tag_name == nil then
-                return nil
-              end
-              return { left = tag_name, right = tag_name }
-            end,
-          },
-        },
-      }
+      --
+      -- require('mini.surround').setup {
+      --   n_lines = 100,
+      --   custom_surroundings = {
+      --     T = {
+      --       input = { '<(%w+)[^<>]->.-</%1>', '^<()%w+().*</()%w+()>$' },
+      --       output = function()
+      --         local tag_name = MiniSurround.user_input 'Tag name'
+      --         if tag_name == nil then
+      --           return nil
+      --         end
+      --         return { left = tag_name, right = tag_name }
+      --       end,
+      --     },
+      --   },
+      -- }
 
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
