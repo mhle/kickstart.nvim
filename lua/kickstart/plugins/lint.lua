@@ -7,10 +7,10 @@ return {
       local lint = require 'lint'
       lint.linters_by_ft = {
         markdown = { 'markdownlint' },
-        -- javascript = { 'eslint_d' },
-        -- typescript = { 'eslint_d' }, -- using tsserver for diagnostics
-        -- typescriptreact = { 'eslint_d' }, -- using tsserver for diagnostics
-        -- javascriptreact = { 'eslint_d' },
+        javascript = { 'eslint_d' },
+        typescript = { 'eslint_d' }, -- using tsserver for diagnostics
+        typescriptreact = { 'eslint_d' }, -- using tsserver for diagnostics
+        javascriptreact = { 'eslint_d' },
       }
 
       local markdownlint = lint.linters.markdownlint
